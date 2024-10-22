@@ -20,7 +20,7 @@
 Dockerfile
 docker-compose.override.yml
 docker-compose.yml
-Docker
+docker
 
 # Miscellanenous
 .env*
