@@ -226,7 +226,7 @@ jobs:
           name: Deploy to Production
           command: |
             set -x
-            ssh -o StrictHostKeyChecking=no $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST << EOF
+            ssh -o StrictHostKeyChecking=no $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST \<< EOF
             PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
             cd $PRODUCTION_DEPLOY_DIRECTORY
             git pull origin $CIRCLE_BRANCH
