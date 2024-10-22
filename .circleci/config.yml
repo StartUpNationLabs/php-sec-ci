@@ -173,19 +173,26 @@ jobs:
           path: phpmetrics-report
           destination: phpmetrics-report
 
-  metrics-phploc:
+  metrics-sonarqube:
     executor: php-executor
     steps:
       - *attach_workspace
       - run:
-          name: Install dev requirements
-          command: composer install --dev
+          name: Install SonarQube Scanner
+          command: |
+            export SONAR_SCANNER_VERSION=6.0.0.4432
+            export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
+            curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
+            unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+            export PATH=$SONAR_SCANNER_HOME/bin:$PATH
+            export SONAR_SCANNER_OPTS="-server"
       - run:
-          name: Run PHPLOC
-          command: vendor/bin/phploc . --exclude=vendor --log-xml=phploc.xml
-      - store_artifacts:
-          path: phploc.xml
-          destination: phploc-report
+          name: Run SonarQube Scanner
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=php-sec-ci \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarqube.devops-tools.apoorva64.com
 
   build-docker-image:
     executor: builder-executor
