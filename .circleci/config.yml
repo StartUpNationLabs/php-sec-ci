@@ -177,7 +177,7 @@ jobs:
     executor: php-executor
     steps:
       - *attach_workspace
-      - install:
+      - run:
           name: Install all required PHPLOC dependencies
           command: composer require --dev phploc/phploc
       - run:
