@@ -195,6 +195,7 @@ jobs:
             .
 
             # Push the Docker image
+            echo "Pushing Docker image to GHCR: $REPOSITORY:$TAG"
             docker push $REPOSITORY:$TAG
 
   deploy-ssh-staging:
