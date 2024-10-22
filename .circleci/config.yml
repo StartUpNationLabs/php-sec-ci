@@ -159,6 +159,34 @@ jobs:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit
 
+  metrics-phpmetrics:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install PHPMetrics
+          command: composer require --dev phpmetrics/phpmetrics
+      - run:
+          name: Run PHPMetrics
+          command: vendor/bin/phpmetrics --report-html=./phpmetrics-report .
+      - store_artifacts:
+          path: phpmetrics-report
+          destination: phpmetrics-report
+
+  metrics-phploc:
+    executor: php-executor
+    steps:
+      - *attach_workspace
+      - run:
+          name: Install PHPLOC
+          command: composer require --dev phploc/phploc
+      - run:
+          name: Run PHPLOC
+          command: vendor/bin/phploc . --exclude=vendor --log-xml=phploc.xml
+      - store_artifacts:
+          path: phploc.xml
+          destination: phploc-report
+
   build-docker-image:
     executor: builder-executor
     steps:
@@ -252,12 +280,20 @@ workflows:
       - test-phpunit:
           requires:
             - build-setup
+      - metrics-phpmetrics:
+          requires:
+            - build-setup
+      - metrics-phploc:
+          requires:
+            - build-setup
       - hold:
           type: approval
           requires:
             - lint-phpcs
             - security-check-dependencies
             - test-phpunit
+            - metrics-phpmetrics
+            - metrics-phploc
           filters:
             branches:
               only:
