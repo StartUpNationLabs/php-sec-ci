@@ -178,8 +178,8 @@ jobs:
     steps:
       - *attach_workspace
       - run:
-          name: Install all required PHPLOC dependencies
-          command: composer require --dev phploc/phploc
+          name: Install dev requirements
+          command: composer install --dev
       - run:
           name: Run PHPLOC
           command: vendor/bin/phploc . --exclude=vendor --log-xml=phploc.xml
