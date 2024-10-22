@@ -290,7 +290,7 @@ workflows:
       - metrics-phpmetrics:
           requires:
             - build-setup
-      - metrics-phploc:
+      - metrics-sonarqube:
           requires:
             - build-setup
       - hold:
