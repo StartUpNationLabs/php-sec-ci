@@ -164,7 +164,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.23
           docker_layer_caching: true
       - run:
           name: Build and Push Docker Image to GHCR (GitHub Container Registry)
@@ -205,7 +204,7 @@ jobs:
           fingerprints:
             - "${STAGING_SSH_FINGERPRINT}"
       - deploy:
-          name: Deploy to AWS
+          name: Deploy to Ozeliurs Virtual Hosting
           command: |
             set -x
             ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST \<< EOF
