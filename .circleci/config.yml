@@ -34,7 +34,6 @@ version: 2.1
 #  2. Suffixes based on the specific tool or task:
 #  For example, for a job that uses PHP_CodeSniffer, use phpcs as a suffix.
 
-
 # Default configuration for persist_to_workspace and attach_workspace commands
 persist_to_workspace: &persist_to_workspace
   persist_to_workspace:
@@ -67,8 +66,6 @@ executors:
     docker:
       - image: cimg/base:stable
         name: localhost
-
-
 
 jobs:
   debug-info:
@@ -106,7 +103,6 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
       - *persist_to_workspace
 
-
   lint-phpcs:
     executor: php-executor
     steps:
@@ -128,8 +124,6 @@ jobs:
           path: phpcs-report.txt
           destination: phpcs-report
 
-
-
   security-check-dependencies:
     executor: php-executor
     steps:
@@ -145,8 +139,6 @@ jobs:
       - store_artifacts:
           path: security-report.json
           destination: security-report
-
-
 
   test-phpunit:
     executor: php-executor
@@ -166,7 +158,6 @@ jobs:
       - run:
           name: Run PHPUnit
           command: ./vendor/bin/phpunit --testsuite=Unit
-
 
   build-docker-image:
     executor: builder-executor
@@ -207,7 +198,6 @@ jobs:
             # Push the Docker image
             docker push $REPOSITORY:$TAG
 
-
   deploy-ssh-staging:
     executor: simple-executor
     steps:
@@ -226,10 +216,23 @@ jobs:
             (flock -w 10 9 || exit 1; sudo -S service php${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
             EOF
 
-
-#  deploy-ssh-production:
-# It's up to you :)
-
+  deploy-ssh-production:
+    executor: simple-executor
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "${PRODUCTION_SSH_FINGERPRINT}"
+      - deploy:
+          name: Deploy to Production
+          command: |
+            set -x
+            ssh -o StrictHostKeyChecking=no $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST << EOF
+            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
+            cd $PRODUCTION_DEPLOY_DIRECTORY
+            git pull origin $CIRCLE_BRANCH
+            composer install --optimize-autoloader --no-interaction --prefer-dist
+            (flock -w 10 9 || exit 1; sudo -S service php\${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
+            EOF
 
 workflows:
   main_workflow:
@@ -247,6 +250,10 @@ workflows:
             - build-setup
       - hold:
           type: approval
+          requires:
+            - lint-phpcs
+            - security-check-dependencies
+            - test-phpunit
           filters:
             branches:
               only:
@@ -255,7 +262,7 @@ workflows:
                 - /^release\/.*/
       - deploy-ssh-production:
           requires:
-              - hold
+            - hold
           filters:
             branches:
               only:
@@ -268,7 +275,6 @@ workflows:
             branches:
               only:
                 - /^release\/.*/
-
 
   container_workflow:
     jobs:
