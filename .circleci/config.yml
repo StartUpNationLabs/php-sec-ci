@@ -186,9 +186,6 @@ jobs:
             unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
             export PATH=$SONAR_SCANNER_HOME/bin:$PATH
             export SONAR_SCANNER_OPTS="-server"
-      - run:
-          name: Run SonarQube Scanner
-          command: |
             sonar-scanner \
               -Dsonar.projectKey=php-sec-ci \
               -Dsonar.sources=. \
