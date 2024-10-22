@@ -300,7 +300,7 @@ workflows:
             - security-check-dependencies
             - test-phpunit
             - metrics-phpmetrics
-            - metrics-phploc
+            - metrics-sonarqube
           filters:
             branches:
               only:
