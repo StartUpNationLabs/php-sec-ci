@@ -127,8 +127,12 @@ jobs:
           name: Install PHPUnit
           command: composer require --dev phpunit/phpunit
       - run:
-          name: Run PHPUnit
-          command: XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=Unit --coverage-clover=coverage.xml
+          name: Run PHPUnit with coverage
+          command: |
+            XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.xml
+      - store_artifacts:
+          path: coverage.xml
+          destination: coverage-report
       - persist_to_workspace:
           root: .
           paths:
