@@ -164,9 +164,6 @@ jobs:
     steps:
       - *attach_workspace
       - run:
-          name: Install PHPMetrics
-          command: composer install phpmetrics/phpmetrics
-      - run:
           name: Run PHPMetrics
           command: vendor/bin/phpmetrics --report-html=./phpmetrics-report .
       - store_artifacts:
