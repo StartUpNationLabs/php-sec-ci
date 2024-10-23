@@ -22,10 +22,9 @@ class ImageCreator
     protected string $text2;
     protected string $font;
 
-
     public function __construct(
-        array  $yourColor = [128, 128, 128],
-        array  $yourColor2 = [60, 80, 57],
+        array $yourColor = [128, 128, 128],
+        array $yourColor2 = [60, 80, 57],
         string $text = "DEVOPS",
         string $text2 = "Une superbe image"
     ) {
@@ -36,23 +35,21 @@ class ImageCreator
         $this->yourColor2 = $this->allocateColor($yourColor2);
 
         // Le texte
-        $this->text = $text . ' - ' . (new Carbon())->format('Y-m-d H:i:s');
+        $this->text = $text . " - " . (new Carbon())->format("Y-m-d H:i:s");
         $this->text2 = $text2;
 
-        if (!empty($_ENV['APP_SECRET'])) {
-            $this->text2 .= ' (secret: ' . $_ENV['APP_SECRET'] . ')';
+        if (!empty($_ENV["APP_SECRET"])) {
+            $this->text2 .= " (secret: " . $_ENV["APP_SECRET"] . ")";
         }
 
         // La police
-        $this->font = dirname(__DIR__) . '/public/font/consolas.ttf';
+        $this->font = dirname(__DIR__) . "/public/font/consolas.ttf";
     }
-
 
     private function allocateColor(array $rgb): false|int
     {
         return imagecolorallocate($this->im, ...$rgb);
     }
-
 
     public function createImage(): void
     {
@@ -61,8 +58,26 @@ class ImageCreator
         imagefilledrectangle($this->im, 10, 10, 590, 190, $this->yourColor2);
 
         // Ajout du texte
-        imagettftext($this->im, 20, 0, 50, 50, $this->white, $this->font, $this->text);
-        imagettftext($this->im, 12, 0, 50, 80, $this->white, $this->font, $this->text2);
+        imagettftext(
+            $this->im,
+            20,
+            0,
+            50,
+            50,
+            $this->white,
+            $this->font,
+            $this->text
+        );
+        imagettftext(
+            $this->im,
+            12,
+            0,
+            50,
+            80,
+            $this->white,
+            $this->font,
+            $this->text2
+        );
 
         // Sauvegarde l'image
         imagepng($this->im);
