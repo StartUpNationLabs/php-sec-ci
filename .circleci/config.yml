@@ -157,7 +157,11 @@ jobs:
           command: composer require --dev phpunit/phpunit
       - run:
           name: Run PHPUnit
-          command: ./vendor/bin/phpunit --testsuite=Unit
+          command: ./vendor/bin/phpunit --testsuite=Unit --coverage-clover=coverage.xml
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage.xml
 
   metrics-phpmetrics:
     executor: php-executor
@@ -185,6 +189,7 @@ jobs:
             export SONAR_SCANNER_OPTS="-server"
             sonar-scanner \
               -Dsonar.projectKey=php-sec-ci \
+              -Dsonar.php.coverage.reportPaths=coverage.xml \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarqube.devops-tools.apoorva64.com
 
@@ -281,10 +286,10 @@ workflows:
       - test-phpunit:
           requires:
             - build-setup
-      - metrics-phpmetrics:
-          requires:
-            - build-setup
       - metrics-sonarqube:
+          requires:
+            - test-phpunit
+      - metrics-phpmetrics:
           requires:
             - build-setup
       - hold:
