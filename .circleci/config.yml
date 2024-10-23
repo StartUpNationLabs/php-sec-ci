@@ -124,9 +124,6 @@ jobs:
               circleci step halt
             fi
       - run:
-          name: Install PHPUnit
-          command: composer require --dev phpunit/phpunit
-      - run:
           name: Run PHPUnit with coverage
           command: |
             XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.xml
