@@ -1,39 +1,5 @@
 version: 2.1
 
-# List of all environment variables accessible in this config file
-# https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-
-# Recommendations
-# ---------------
-
-# General Principles:
-#
-#  1. Descriptive: The job name should clearly describe what the job does.
-#  2. Concise: Names should be as short as possible while still being descriptive.
-#  3. Consistent: Use a consistent format or pattern for all job names.
-#  4. Avoid Ambiguous Abbreviations: If you use abbreviations, ensure they are widely understood.
-#
-# Naming Convention Proposal:
-#
-#  1. Prefixes based on the nature of the job:
-#     - build-: for jobs related to building or installation.
-#     - lint-: for jobs related to code quality checking.
-#     - test-: for jobs related to testing.
-#     - security-: for jobs related to security.
-#     - metrics-: for jobs related to metrics generation.
-#     - deploy-: for jobs related to deployment.
-#     - notify-: for jobs related to notifications.
-#     - debug-: for jobs related to debugging.
-#     - setup-: for jobs related to set up.
-#     - init-: for jobs related to initialization.
-#     - generate-: for jobs related to generation.
-#     - validate-: for jobs related to validation.
-#     - compile-: for jobs related to compilation.
-#     - e2e-: for jobs related to end-to-end testing.
-#
-#  2. Suffixes based on the specific tool or task:
-#  For example, for a job that uses PHP_CodeSniffer, use phpcs as a suffix.
-
 # Default configuration for persist_to_workspace and attach_workspace commands
 persist_to_workspace: &persist_to_workspace
   persist_to_workspace:
