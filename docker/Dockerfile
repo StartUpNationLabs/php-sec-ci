@@ -18,15 +18,15 @@ ENV VERSION="${TAG}"
 
 # Metadata
 LABEL maintainer="${PROJECT_USERNAME}" \
-      org.opencontainers.image.authors="${PROJECT_USERNAME}" \
-      org.opencontainers.image.url="${GIT_URL}" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.vendor="${PROJECT_USERNAME}" \
-      org.opencontainers.image.licenses="proprietary" \
-      org.opencontainers.image.title="PHP Devops TP" \
-      org.opencontainers.image.description="Example of a PHP application automatically encapsulated inside a docker container by the CI pipeline" \
-      org.opencontainers.image.revision="${GIT_COMMIT}" \
-      org.opencontainers.image.source="${GIT_URL}"
+    org.opencontainers.image.authors="${PROJECT_USERNAME}" \
+    org.opencontainers.image.url="${GIT_URL}" \
+    org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.vendor="${PROJECT_USERNAME}" \
+    org.opencontainers.image.licenses="proprietary" \
+    org.opencontainers.image.title="PHP Devops TP" \
+    org.opencontainers.image.description="Example of a PHP application automatically encapsulated inside a docker container by the CI pipeline" \
+    org.opencontainers.image.revision="${GIT_COMMIT}" \
+    org.opencontainers.image.source="${GIT_URL}"
 
 ENV DATABASE_DRIVER=sqlite
 ENV DATABASE_DATABASE=/var/www/html/database/db.sqlite
@@ -40,7 +40,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     wget \
     apt-utils \
-    apt-transport-https
+    apt-transport-https \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install sqlite3
 RUN mkdir /opt/sqlite3  \
@@ -61,16 +63,15 @@ RUN pecl install xdebug-${XDEBUG_VERSION} \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip pdo_sqlite
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip pdo_sqlite
 
 # Install Infisical cli
 RUN apt-get install -y bash curl \
     && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
     && apt-get update \
-    && apt-get install -y infisical
-
-RUN apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apt/archives/*
+    && apt-get install -y infisical \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 #Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
