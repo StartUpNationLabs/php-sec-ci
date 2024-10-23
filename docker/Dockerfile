@@ -31,75 +31,39 @@ LABEL maintainer="${PROJECT_USERNAME}" \
 ENV DATABASE_DRIVER=sqlite
 ENV DATABASE_DATABASE=/var/www/html/database/db.sqlite
 
-# Install system dependencies
+# Install system dependencies, SQLite, Xdebug, PHP extensions, Infisical CLI, and Composer
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    unzip \
-    wget \
-    apt-utils \
-    apt-transport-https \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install sqlite3
-RUN mkdir /opt/sqlite3  \
-    && cd /opt/sqlite3  \
-    && wget https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz  \
-    && tar xvfz sqlite-autoconf-${SQLITE_VERSION}.tar.gz  \
-    && cd sqlite-autoconf-${SQLITE_VERSION}  \
-    && CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure  \
-    && make -j$(nproc)  \
-    && make install  \
+    libpng-dev libjpeg62-turbo-dev libfreetype6-dev libzip-dev unzip wget \
+    apt-utils apt-transport-https bash curl \
+    && mkdir /opt/sqlite3 && cd /opt/sqlite3 \
+    && wget https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
+    && tar xvfz sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
+    && cd sqlite-autoconf-${SQLITE_VERSION} \
+    && CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure \
+    && make -j$(nproc) && make install \
     && ln -s /usr/local/bin/sqlite3 /usr/bin/sqlite3 \
-    && rm -Rf /opt/sqlite3 \
-    && sqlite3 --version
-
-# Install xdebug
-RUN pecl install xdebug-${XDEBUG_VERSION} \
-    && docker-php-ext-enable xdebug
-
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip pdo_sqlite
-
-# Install Infisical cli
-RUN apt-get install -y bash curl \
+    && cd / && rm -Rf /opt/sqlite3 \
+    && pecl install xdebug-${XDEBUG_VERSION} \
+    && docker-php-ext-enable xdebug \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip pdo_sqlite \
     && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
-    && apt-get update \
-    && apt-get install -y infisical \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get update && apt-get install -y infisical \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && a2enmod rewrite \
+    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-#Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY ./composer.json ./composer.lock /var/www/html/
 
-# Enable the apache's mod_rewrite
-RUN a2enmod rewrite
+RUN composer install --no-dev --optimize-autoloader
 
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-
-COPY ./composer.json /var/www/html/composer.json
-COPY ./composer.lock /var/www/html/composer.lock
-
-RUN composer install
-
-# Copy existing application directory contents
 COPY . /var/www/html
 
-RUN rm -Rf /var/www/html/docker
+RUN rm -Rf /var/www/html/docker \
+    && mkdir -p /var/www/html/vendor /var/www/html/database \
+    && chown -R www-data:www-data /var/www/html
 
-# Ensure the volumes directories exist
-RUN mkdir -p /var/www/html/vendor \
-    && mkdir -p /var/www/html/database
-
-#Change permission to allow app to work properly
-RUN chown -R www-data:www-data /var/www/html
-
-# Define the working directory
 WORKDIR /var/www/html
 
-# Exposez le port 80
 EXPOSE 80
