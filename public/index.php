@@ -2,7 +2,7 @@
 
 use App\ImageCreator;
 
-require_once __DIR__ . "/../vendor/autoload.php";
+use Dotenv;
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->safeLoad();
