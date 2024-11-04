@@ -7,6 +7,11 @@ use PHPUnit\Framework\TestCase;
 
 class ImageCreatorTest extends TestCase
 {
+    /**
+     * Set up test environment
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -15,6 +20,11 @@ class ImageCreatorTest extends TestCase
         ob_start();
     }
 
+    /**
+     * Clean up test environment
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         ob_end_clean();
@@ -22,7 +32,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test constructor with default values
+     *
      * @covers \App\ImageCreator::__construct
+     * @return void
      */
     public function test_constructor_with_default_values()
     {
@@ -31,7 +44,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test constructor with custom color and text values
+     *
      * @covers \App\ImageCreator::__construct
+     * @return void
      */
     public function test_constructor_with_custom_values()
     {
@@ -45,7 +61,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test that createImage generates valid PNG output
+     *
      * @covers \App\ImageCreator::createImage
+     * @return void
      */
     public function test_create_image_generates_png()
     {
@@ -62,7 +81,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test constructor behavior with APP_SECRET environment variable set
+     *
      * @covers \App\ImageCreator::__construct
+     * @return void
      */
     public function test_constructor_with_app_secret()
     {
@@ -81,7 +103,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test that invalid color values throw TypeError
+     *
      * @covers \App\ImageCreator::createImage
+     * @return void
      */
     public function test_create_image_with_invalid_color_values()
     {
@@ -91,7 +116,10 @@ class ImageCreatorTest extends TestCase
     }
 
     /**
+     * Test that the required font file exists
+     *
      * @covers \App\ImageCreator::__construct
+     * @return void
      */
     public function test_font_file_exists()
     {
