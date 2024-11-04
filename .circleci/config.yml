@@ -162,7 +162,7 @@ jobs:
             sonar-scanner \
               -Dsonar.projectKey=php-sec-ci \
               -Dsonar.php.coverage.reportPaths=coverage.xml \
-              -Dsonar.sources=. \
+              -Dsonar.sources=src \
               -Dsonar.host.url=https://sonarqube.devops-tools.apoorva64.com
 
   build-docker-image:
