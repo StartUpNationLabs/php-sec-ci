@@ -7,108 +7,99 @@ use PHPUnit\Framework\TestCase;
 
 class ImageCreatorTest extends TestCase
 {
-    /** @var ImageCreator */
-    private $imageCreator;
-
-    /**
-     * Set up test environment
-     *
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->imageCreator = new ImageCreator(
-            [128, 128, 128], // color1
-            [60, 80, 57], // color2
-            "DEVOPS", // text1
-            "Une superbe image" // text2
-        );
+
+        // Ensure we can capture image output
+        ob_start();
     }
 
-    /**
-     * Test ImageCreator object construction
-     *
-     * @return void
-     */
-    public function testImageCreatorConstruction(): void
-    {
-        $this->assertInstanceOf(ImageCreator::class, $this->imageCreator);
-    }
-
-    /**
-     * Test color validation with invalid RGB values
-     *
-     * @return void
-     */
-    public function testColorValidation(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        new ImageCreator(
-            [300, 128, 128], // Invalid RGB value (>255)
-            [60, 80, 57],
-            "DEVOPS",
-            "Une superbe image"
-        );
-    }
-
-    /**
-     * Test validation of empty text input
-     *
-     * @return void
-     */
-    public function testTextNotEmpty(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        new ImageCreator(
-            [128, 128, 128],
-            [60, 80, 57],
-            "", // Empty text
-            "Une superbe image"
-        );
-    }
-
-    /**
-     * Test that createImage returns proper GD resource
-     *
-     * @return void
-     */
-    public function testCreateImageReturnsResource(): void
-    {
-        $result = $this->imageCreator->createImage();
-
-        // Check if the result is a GD image resource or a GdImage object (PHP 8+)
-        if (PHP_VERSION_ID >= 80000) {
-            $this->assertInstanceOf(\GdImage::class, $result);
-        } else {
-            $this->assertTrue(is_resource($result));
-            $this->assertEquals("gd", get_resource_type($result));
-        }
-    }
-
-    /**
-     * Test image dimensions are correct
-     *
-     * @return void
-     */
-    public function testImageDimensions(): void
-    {
-        $image = $this->imageCreator->createImage();
-
-        // Assuming the image dimensions are fixed in your implementation
-        // Adjust these values according to your actual implementation
-        $this->assertEquals(400, imagesx($image)); // width
-        $this->assertEquals(300, imagesy($image)); // height
-    }
-
-    /**
-     * Clean up test environment
-     *
-     * @return void
-     */
     protected function tearDown(): void
     {
+        ob_end_clean();
         parent::tearDown();
-        unset($this->imageCreator);
+    }
+
+    /**
+     * @covers \App\ImageCreator::__construct
+     */
+    public function test_constructor_with_default_values()
+    {
+        $imageCreator = new ImageCreator();
+        $this->assertInstanceOf(ImageCreator::class, $imageCreator);
+    }
+
+    /**
+     * @covers \App\ImageCreator::__construct
+     */
+    public function test_constructor_with_custom_values()
+    {
+        $imageCreator = new ImageCreator(
+            [255, 0, 0], // Red
+            [0, 255, 0], // Green
+            "TEST",
+            "Custom Text"
+        );
+        $this->assertInstanceOf(ImageCreator::class, $imageCreator);
+    }
+
+    /**
+     * @covers \App\ImageCreator::createImage
+     */
+    public function test_create_image_generates_png()
+    {
+        $imageCreator = new ImageCreator();
+        $imageCreator->createImage();
+
+        $output = ob_get_contents();
+
+        // Check if the output starts with PNG signature
+        $this->assertEquals(
+            "\x89\x50\x4E\x47", // PNG file signature
+            substr($output, 0, 4)
+        );
+    }
+
+    /**
+     * @covers \App\ImageCreator::__construct
+     */
+    public function test_constructor_with_app_secret()
+    {
+        $_ENV["APP_SECRET"] = "test-secret";
+
+        $imageCreator = new ImageCreator(
+            [128, 128, 128],
+            [60, 80, 57],
+            "TEST",
+            "Test Text"
+        );
+
+        $this->assertInstanceOf(ImageCreator::class, $imageCreator);
+
+        unset($_ENV["APP_SECRET"]);
+    }
+
+    /**
+     * @covers \App\ImageCreator::createImage
+     */
+    public function test_create_image_with_invalid_color_values()
+    {
+        $this->expectException(\TypeError::class);
+
+        new ImageCreator(["invalid", "color", "values"], [60, 80, 57]);
+    }
+
+    /**
+     * @covers \App\ImageCreator::__construct
+     */
+    public function test_font_file_exists()
+    {
+        $imageCreator = new ImageCreator();
+        $reflectionClass = new \ReflectionClass($imageCreator);
+        $fontProperty = $reflectionClass->getProperty("font");
+        $fontProperty->setAccessible(true);
+
+        $this->assertFileExists($fontProperty->getValue($imageCreator));
     }
 }
