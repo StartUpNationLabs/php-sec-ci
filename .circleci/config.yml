@@ -305,3 +305,7 @@ workflows:
                 - /^release\/.*/
                 - /^hotfix\/.*/
                 - /^bugfix\/.*/
+            paths:
+              - "public/**"
+              - "src/**"
+              - "composer.json"
