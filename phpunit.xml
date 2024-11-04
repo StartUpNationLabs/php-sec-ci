@@ -7,7 +7,6 @@
          requireCoverageMetadata="true"
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
-         beStrictAboutCoversAnnotation="false"
          failOnRisky="true"
          failOnWarning="true">
     <testsuites>
