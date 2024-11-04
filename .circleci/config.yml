@@ -34,22 +34,6 @@ executors:
         name: localhost
 
 jobs:
-  debug-info:
-    executor: php-executor
-    steps:
-      - run:
-          name: Debug
-          command: |
-            echo "Current user: $USER"
-            echo "Home directory: $HOME"
-            echo "Current shell: $SHELL"
-            echo "Operating system: $(uname -a)"
-            echo "Current path: $PATH"
-            echo "Current working directory: $(pwd)"
-            echo "Current date: $(date)"
-            echo "--------------------"
-            env
-
   build-setup:
     executor: php-executor
     steps:
@@ -245,7 +229,6 @@ jobs:
 workflows:
   main_workflow:
     jobs:
-      - debug-info
       - build-setup
       - lint-phpcs:
           requires:
