@@ -38,11 +38,12 @@ class ImageCreator
         $this->text = $text . " - " . (new Carbon())->format("Y-m-d H:i:s");
         $this->text2 = $text2;
 
-        if (!empty($_ENV["APP_SECRET"])) {
-            $this->text2 .= " (secret: " . $_ENV["APP_SECRET"] . ")";
-        }
+        // This code seems to be insecure, if it is wanted behaviour, sorry for the comment
+        // if (!empty($_ENV["APP_SECRET"])) {
+        //     $this->text2 .= " (secret: " . $_ENV["APP_SECRET"] . ")";
+        // }
 
-        // La police
+        // La police 🚨
         $this->font = dirname(__DIR__) . "/public/font/consolas.ttf";
     }
 
