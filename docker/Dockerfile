@@ -1,5 +1,5 @@
 FROM php:8.2-apache
-LABEL maintainer="YOUR NAME <YOUR EMAIL>"
+LABEL maintainer="Ozeliurs <ozeliurs at gmail dot com>"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -32,11 +32,11 @@ ENV DATABASE_DRIVER=sqlite
 ENV DATABASE_DATABASE=/var/www/html/database/db.sqlite
 
 # Install system dependencies, SQLite, Xdebug, PHP extensions, Infisical CLI, and Composer
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get --no-install-recommends install -y \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev libzip-dev unzip wget \
     apt-utils apt-transport-https bash curl \
     && mkdir /opt/sqlite3 && cd /opt/sqlite3 \
-    && wget https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
+    && wget --max-redirect=0 https://www.sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
     && tar xvfz sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
     && cd sqlite-autoconf-${SQLITE_VERSION} \
     && CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure \
@@ -47,8 +47,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable xdebug \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip pdo_sqlite \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
-    && apt-get update && apt-get install -y infisical \
+    && curl -1sLf --proto "=https" 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
+    && apt-get update && apt-get --no-install-recommends install -y infisical \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && a2enmod rewrite \
     && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
@@ -58,12 +58,14 @@ COPY ./composer.json ./composer.lock /var/www/html/
 
 RUN composer install --no-dev --optimize-autoloader
 
-COPY . /var/www/html
+COPY public/ src/ /var/www/html/
 
 RUN rm -Rf /var/www/html/docker \
     && mkdir -p /var/www/html/vendor /var/www/html/database \
     && chown -R www-data:www-data /var/www/html
 
 WORKDIR /var/www/html
+
+USER www-data
 
 EXPOSE 80
