@@ -1,5 +1,11 @@
 # PHP Security CI Example
 
+[![Quality Gate Status](https://sonarqube.devops-tools.apoorva64.com/api/project_badges/measure?project=php-sec-ci&metric=alert_status&token=sqb_0a7ea53df1c7d83ddb4de98a45356cad9767f990)](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci)
+[![Security Rating](https://sonarqube.devops-tools.apoorva64.com/api/project_badges/measure?project=php-sec-ci&metric=security_rating&token=sqb_0a7ea53df1c7d83ddb4de98a45356cad9767f990)](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci)
+[![Reliability Rating](https://sonarqube.devops-tools.apoorva64.com/api/project_badges/measure?project=php-sec-ci&metric=reliability_rating&token=sqb_0a7ea53df1c7d83ddb4de98a45356cad9767f990)](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci)
+[![Maintainability Rating](https://sonarqube.devops-tools.apoorva64.com/api/project_badges/measure?project=php-sec-ci&metric=sqale_rating&token=sqb_0a7ea53df1c7d83ddb4de98a45356cad9767f990)](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci)
+[![Coverage](https://sonarqube.devops-tools.apoorva64.com/api/project_badges/measure?project=php-sec-ci&metric=coverage&token=sqb_0a7ea53df1c7d83ddb4de98a45356cad9767f990)](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci)
+
 This project demonstrates a complete CI/CD pipeline for a PHP application with robust security measures and best practices.
 
 ## 🚀 Features
