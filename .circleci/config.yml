@@ -214,6 +214,7 @@ jobs:
       - run:
           name: Retrieve Infisical Staging
           command: |
+            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging
             export STAGING_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging)'
 
   retrieve-infisical-production:
@@ -222,6 +223,7 @@ jobs:
       - run:
           name: Retrieve Infisical Production
           command: |
+            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod
             export PRODUCTION_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod)'
 
   debug-infisical:
