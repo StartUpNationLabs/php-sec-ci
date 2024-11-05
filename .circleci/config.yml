@@ -167,6 +167,7 @@ jobs:
             # Sanitize the repository name and branch name
             REPOSITORY=$(echo "ghcr.io/startupnationlabs/php-sec-ci" | tr '[:upper:]' '[:lower:]' | tr -d '_')
             TAG=$(echo $CIRCLE_BRANCH | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -cd '[:alnum:]._-' | cut -c 1-128)
+            COMMIT_HASH=$(git rev-parse --short HEAD)
 
             # Login to GHCR
             echo "Logging in to GHCR"
@@ -177,6 +178,7 @@ jobs:
             docker build \
               -f docker/Dockerfile \
               -t $REPOSITORY:$TAG \
+              -t $REPOSITORY:$COMMIT_HASH \
               --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
               --build-arg TAG="${TAG}" \
               --build-arg GIT_COMMIT=$(git rev-parse -q --verify HEAD) \
@@ -186,9 +188,11 @@ jobs:
               --build-arg PROJECT_USERNAME=php-sec-ci \
               .
 
-            # Push the Docker image
+            # Push the Docker image with all tags
             echo "Pushing Docker image to GHCR: $REPOSITORY:$TAG"
             docker push $REPOSITORY:$TAG
+            echo "Pushing Docker image to GHCR: $REPOSITORY:$COMMIT_HASH"
+            docker push $REPOSITORY:$COMMIT_HASH
 
   deploy-ssh-staging:
     executor: simple-executor
