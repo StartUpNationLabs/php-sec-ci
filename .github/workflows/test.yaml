@@ -1,0 +1,133 @@
+name: PHP Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+    paths:
+      - "**.php"
+      - "composer.*"
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**.php"
+      - "composer.*"
+      - ".github/workflows/**"
+
+jobs:
+  build-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, xml, pcov
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: |
+            .
+            !.git
+            !vendor
+          retention-days: 1
+
+  quality:
+    needs: build-setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check: [lint-phpcs, security-check, phpunit, phpmetrics]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: app
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run ${{ matrix.check }}
+        run: |
+          case ${{ matrix.check }} in
+            lint-phpcs)
+              composer require --dev "squizlabs/php_codesniffer=*" "phpcompatibility/php-compatibility=*"
+              ./vendor/bin/phpcs --standard=phpcs.xml --report-file=phpcs-report.txt --report=checkstyle --extensions=php --ignore=vendor/ .
+              ;;
+            security-check)
+              curl -L -o local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64
+              chmod +x local-php-security-checker
+              ./local-php-security-checker --format=json --no-dev > security-report.json
+              ;;
+            phpunit)
+              if [ -f "phpunit.xml" ]; then
+                XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage.xml
+              else
+                echo "No PHPUnit tests found, skipping."
+              fi
+              ;;
+            phpmetrics)
+              vendor/bin/phpmetrics --report-html=./phpmetrics-report .
+              ;;
+          esac
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.check }}-report
+          path: |
+            *report*
+          retention-days: 5
+
+  sonarqube:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: phpunit-report
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarqube.devops-tools.apoorva64.com
+        with:
+          args: >
+            -Dsonar.projectKey=php-sec-ci
+            -Dsonar.php.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=src
