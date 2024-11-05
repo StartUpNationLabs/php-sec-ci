@@ -210,16 +210,21 @@ jobs:
             export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com)
 
       - run:
-          name: Export Staging Environment Variables
+          name: Export Environment Variables to Files
           command: |
-            export STAGING_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging)'
+            # Create a directory for env files
+            mkdir -p .env_files
 
-      - run:
-          name: Export Production Environment Variables
-          command: |
-            export PRODUCTION_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod)'
+            # Export staging env to file
+            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging > .env_files/staging.env
 
-      - *persist_to_workspace
+            # Export production env to file
+            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod > .env_files/production.env
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .env_files/
 
   debug-infisical:
     executor: simple-executor
@@ -228,8 +233,10 @@ jobs:
       - run:
           name: Debug Infisical
           command: |
-            echo $STAGING_ENV
-            echo $PRODUCTION_ENV
+            echo "Staging Environment:"
+            cat .env_files/staging.env
+            echo "\nProduction Environment:"
+            cat .env_files/production.env
 
   deploy-ssh-staging:
     executor: simple-executor
