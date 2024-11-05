@@ -208,7 +208,7 @@ jobs:
           name: Configure Infisical
           command: |
             mkdir -p .env_files
-            export infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com > .env_files/infisical.env
+            infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com > .env_files/infisical.env
 
       - run:
           name: Export Environment Variables to Files
@@ -223,8 +223,7 @@ jobs:
             # Export production env to file
             infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod > .env_files/production.env
 
-            echo "📦 Environment files exported to .env_files"
-            echo "📦 Staging: =================================="
+            echo "📦 Environment files exported to .env_files" echo "📦 Staging: =================================="
             cat .env_files/staging.env
             echo "📦 Production: ==============================="
             cat .env_files/production.env
