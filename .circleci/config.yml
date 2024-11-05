@@ -256,14 +256,12 @@ jobs:
           name: Deploy to Ozeliurs Virtual Hosting
           command: |
             set -x
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT \<< EOF
-            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
-            cd $STAGING_DEPLOY_DIRECTORY
-            git pull origin $CIRCLE_BRANCH
-            composer install --optimize-autoloader --no-interaction --prefer-dist
-            (flock -w 10 9 || exit 1; sudo -S service php${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
+            export TAG=$(echo $CIRCLE_BRANCH | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -cd '[:alnum:]._-' | cut -c 1-128)
+            rsync -avz -e "ssh -o StrictHostKeyChecking=no -p $SSH_STAGING_PORT" .env_files/staging.env $STAGING_SSH_USER@$STAGING_SSH_HOST:./.env
+            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT << EOF
+            export TAG=$TAG
+            docker pull ghcr.io/startupnationlabs/php-sec-ci:\$TAG
             EOF
-
   deploy-ssh-production:
     executor: simple-executor
     steps:
