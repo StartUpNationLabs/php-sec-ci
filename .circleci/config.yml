@@ -249,19 +249,35 @@ jobs:
   deploy-ssh-staging:
     executor: simple-executor
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "${STAGING_SSH_FINGERPRINT}"
+      - *attach_workspace
       - deploy:
-          name: Deploy to Ozeliurs Virtual Hosting
+          name: Deploy to Staging Environment
           command: |
-            set -x
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT \<< EOF
-            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
-            cd $STAGING_DEPLOY_DIRECTORY
-            git pull origin $CIRCLE_BRANCH
-            composer install --optimize-autoloader --no-interaction --prefer-dist
-            (flock -w 10 9 || exit 1; sudo -S service php${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
+            # Get the commit hash for the Docker image tag
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+            REPOSITORY="ghcr.io/startupnationlabs/php-sec-ci"
+
+            # Copy the staging environment file and deploy using Docker
+            scp -P $SSH_STAGING_PORT -o StrictHostKeyChecking=no .env_files/staging.env $STAGING_SSH_USER@$STAGING_SSH_HOST:$STAGING_DEPLOY_DIRECTORY/.env
+
+            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT << EOF
+              # Login to GitHub Container Registry
+              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+
+              # Pull the new image
+              docker pull $REPOSITORY:$COMMIT_HASH
+
+              # Stop and remove the existing container
+              docker stop php-sec-ci || true
+              docker rm php-sec-ci || true
+
+              # Run the new container
+              docker run -d \
+                --name php-sec-ci \
+                --restart unless-stopped \
+                --network web \
+                --env-file $STAGING_DEPLOY_DIRECTORY/.env \
+                $REPOSITORY:$COMMIT_HASH
             EOF
 
   deploy-ssh-production:
