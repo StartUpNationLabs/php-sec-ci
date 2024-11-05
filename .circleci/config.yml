@@ -208,12 +208,12 @@ jobs:
           name: Configure Infisical
           command: |
             export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com)
-            echo "🔑 $INFISICAL_TOKEN"
 
       - run:
           name: Export Environment Variables to Files
           command: |
-            echo "🧳 $INFISICAL_PROJECT_ID"
+            echo "🔑 INFISICAL_TOKEN:  $INFISICAL_TOKEN"
+            echo "🧳 INFISICAL_PROJECT_ID: $INFISICAL_PROJECT_ID"
 
             # Create a directory for env files
             mkdir -p .env_files
