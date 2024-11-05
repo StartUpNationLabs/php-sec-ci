@@ -208,28 +208,17 @@ jobs:
           name: Configure Infisical
           command: |
             export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com)
-      - *persist_to_workspace
 
-  retrieve-infisical-staging:
-    executor: simple-executor
-    steps:
-      - *attach_workspace
       - run:
-          name: Retrieve Infisical Staging
+          name: Export Staging Environment Variables
           command: |
-            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging
             export STAGING_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e staging)'
-      - *persist_to_workspace
 
-  retrieve-infisical-production:
-    executor: simple-executor
-    steps:
-      - *attach_workspace
       - run:
-          name: Retrieve Infisical Production
+          name: Export Production Environment Variables
           command: |
-            infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod
             export PRODUCTION_ENV='$(infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod)'
+
       - *persist_to_workspace
 
   debug-infisical:
@@ -321,16 +310,9 @@ workflows:
       - setup-infisical:
           requires:
             - build-setup
-      - retrieve-infisical-staging:
-          requires:
-            - setup-infisical
-      - retrieve-infisical-production:
-          requires:
-            - setup-infisical
       - debug-infisical:
           requires:
-            - retrieve-infisical-staging
-            - retrieve-infisical-production
+            - setup-infisical
       - deploy-ssh-production:
           requires:
             - hold
