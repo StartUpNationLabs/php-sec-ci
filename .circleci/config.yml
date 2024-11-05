@@ -212,6 +212,8 @@ jobs:
       - run:
           name: Export Environment Variables to Files
           command: |
+            echo $INFISICAL_PROJECT_ID
+
             # Create a directory for env files
             mkdir -p .env_files
 
