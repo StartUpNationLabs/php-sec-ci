@@ -197,6 +197,7 @@ jobs:
   setup-infisical:
     executor: simple-executor
     steps:
+      - *attach_workspace
       - run:
           name: Install Infisical
           command: |
@@ -212,6 +213,7 @@ jobs:
   retrieve-infisical-staging:
     executor: simple-executor
     steps:
+      - *attach_workspace
       - run:
           name: Retrieve Infisical Staging
           command: |
@@ -221,6 +223,7 @@ jobs:
   retrieve-infisical-production:
     executor: simple-executor
     steps:
+      - *attach_workspace
       - run:
           name: Retrieve Infisical Production
           command: |
@@ -230,6 +233,7 @@ jobs:
   debug-infisical:
     executor: simple-executor
     steps:
+      - *attach_workspace
       - run:
           name: Debug Infisical
           command: |
