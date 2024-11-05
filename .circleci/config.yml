@@ -200,7 +200,7 @@ jobs:
           name: Deploy to Ozeliurs Virtual Hosting
           command: |
             set -x
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST \<< EOF
+            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT \<< EOF
             PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
             cd $STAGING_DEPLOY_DIRECTORY
             git pull origin $CIRCLE_BRANCH
@@ -259,9 +259,17 @@ workflows:
                 - main
                 - master
                 - /^release\/.*/
+      - build-docker-image:
+          filters:
+            branches:
+              only:
+                - main
+                - master
+                - /^release\/.*/
       - deploy-ssh-production:
           requires:
             - hold
+            - build-docker-image
           filters:
             branches:
               only:
@@ -270,21 +278,8 @@ workflows:
       - deploy-ssh-staging:
           requires:
             - hold
+            - build-docker-image
           filters:
             branches:
               only:
                 - /^release\/.*/
-
-  container_workflow:
-    jobs:
-      - build-docker-image:
-          filters:
-            branches:
-              only:
-                - master
-                - main
-                - develop
-                - /^feature\/.*/
-                - /^release\/.*/
-                - /^hotfix\/.*/
-                - /^bugfix\/.*/
