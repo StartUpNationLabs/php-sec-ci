@@ -260,7 +260,7 @@ jobs:
             # Copy the staging environment file and deploy using Docker
             scp -P $SSH_STAGING_PORT -o StrictHostKeyChecking=no .env_files/staging.env $STAGING_SSH_USER@$STAGING_SSH_HOST:$STAGING_DEPLOY_DIRECTORY/.env
 
-            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT << EOF
+            ssh -o StrictHostKeyChecking=no $STAGING_SSH_USER@$STAGING_SSH_HOST -p $SSH_STAGING_PORT \<< EOF
               # Login to GitHub Container Registry
               echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
