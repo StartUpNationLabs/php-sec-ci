@@ -283,19 +283,35 @@ jobs:
   deploy-ssh-production:
     executor: simple-executor
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "${PRODUCTION_SSH_FINGERPRINT}"
+      - *attach_workspace
       - deploy:
-          name: Deploy to Production
+          name: Deploy to Production Environment
           command: |
-            set -x
+            # Get the commit hash for the Docker image tag
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+            REPOSITORY="ghcr.io/startupnationlabs/php-sec-ci"
+
+            # Copy the production environment file and deploy using Docker
+            scp -o StrictHostKeyChecking=no .env_files/production.env $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST:$PRODUCTION_DEPLOY_DIRECTORY/.env
+
             ssh -o StrictHostKeyChecking=no $PRODUCTION_SSH_USER@$PRODUCTION_SSH_HOST \<< EOF
-            PHP_FPM_VERSION=$(php -v | head -n 1 | cut -d ' ' -f 2 | cut -d '.' -f 1-2)
-            cd $PRODUCTION_DEPLOY_DIRECTORY
-            git pull origin $CIRCLE_BRANCH
-            composer install --optimize-autoloader --no-interaction --prefer-dist
-            (flock -w 10 9 || exit 1; sudo -S service php\${PHP_FPM_VERSION}-fpm restart ) 9>/tmp/fpm.lock
+              # Login to GitHub Container Registry
+              echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+
+              # Pull the new image
+              docker pull $REPOSITORY:$COMMIT_HASH
+
+              # Stop and remove the existing container
+              docker stop php-sec-ci || true
+              docker rm php-sec-ci || true
+
+              # Run the new container
+              docker run -d \
+                --name php-sec-ci \
+                --restart unless-stopped \
+                --network web \
+                --env-file $PRODUCTION_DEPLOY_DIRECTORY/.env \
+                $REPOSITORY:$COMMIT_HASH
             EOF
 
 workflows:
