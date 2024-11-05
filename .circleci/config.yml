@@ -262,6 +262,7 @@ jobs:
             export TAG=$TAG
             docker pull ghcr.io/startupnationlabs/php-sec-ci:\$TAG
             EOF
+            
   deploy-ssh-production:
     executor: simple-executor
     steps:
