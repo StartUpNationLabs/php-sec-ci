@@ -207,13 +207,13 @@ jobs:
       - run:
           name: Configure Infisical
           command: |
-            infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com
             export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_CLIENT --client-secret=$INFISICAL_SECRET --plain --silent --domain=https://infisical.ozeliurs.com)
+            echo "🔑 $INFISICAL_TOKEN"
 
       - run:
           name: Export Environment Variables to Files
           command: |
-            echo $INFISICAL_PROJECT_ID
+            echo "🧳 $INFISICAL_PROJECT_ID"
 
             # Create a directory for env files
             mkdir -p .env_files
@@ -223,6 +223,13 @@ jobs:
 
             # Export production env to file
             infisical export --format=dotenv --projectId $INFISICAL_PROJECT_ID --domain https://infisical.ozeliurs.com -e prod > .env_files/production.env
+
+            echo "📦 Environment files exported to .env_files"
+            echo "📦 Staging: =================================="
+            cat .env_files/staging.env
+            echo "📦 Production: ==============================="
+            cat .env_files/production.env
+            echo "📦 ==========================================="
 
       - persist_to_workspace:
           root: .
