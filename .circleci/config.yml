@@ -268,7 +268,6 @@ jobs:
               sudo docker run -d \
                 --name php-sec-ci \
                 --restart unless-stopped \
-                --network web \
                 --env-file $STAGING_DEPLOY_DIRECTORY/.env \
                 $REPOSITORY:$COMMIT_HASH
             EOF
@@ -302,7 +301,6 @@ jobs:
               sudo docker run -d \
                 --name php-sec-ci \
                 --restart unless-stopped \
-                --network web \
                 --env-file $PRODUCTION_DEPLOY_DIRECTORY/.env \
                 $REPOSITORY:$COMMIT_HASH
             EOF
