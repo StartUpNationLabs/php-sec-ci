@@ -250,6 +250,11 @@ jobs:
     executor: simple-executor
     steps:
       - *attach_workspace
+      - debug:
+          name: Debug env
+          command: |
+            echo "Staging Environment:"
+            cat .env_files/staging.env
       - deploy:
           name: Deploy to Staging Environment
           command: |
@@ -318,6 +323,13 @@ workflows:
   main_workflow:
     jobs:
       - build-setup
+      - build-docker-image:
+          filters:
+            branches:
+              only:
+                - main
+                - master
+                - /^release\/.*/
       - lint-phpcs:
           requires:
             - build-setup
@@ -341,13 +353,6 @@ workflows:
             - test-phpunit
             - metrics-phpmetrics
             - metrics-sonarqube
-          filters:
-            branches:
-              only:
-                - main
-                - master
-                - /^release\/.*/
-      - build-docker-image:
           filters:
             branches:
               only:
