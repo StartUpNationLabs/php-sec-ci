@@ -251,6 +251,10 @@ jobs:
             REPOSITORY="ghcr.io/startupnationlabs/php-sec-ci"
             COMMIT_HASH=$(git rev-parse --short HEAD)
 
+            # debug
+            echo "REPOSITORY: $REPOSITORY"
+            echo "COMMIT_HASH: $COMMIT_HASH"
+
             # Login to GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
