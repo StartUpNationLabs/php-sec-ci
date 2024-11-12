@@ -258,7 +258,7 @@ jobs:
             docker pull $REPOSITORY:$COMMIT_HASH
 
             # Run Grype scan and save results
-            grype $REPOSITORY:$COMMIT_HASH --format json > grype-results.json
+            grype $REPOSITORY:$COMMIT_HASH -o json > grype-results.json
 
             # Check for critical vulnerabilities
             if grep -q '"severity":"Critical"' grype-results.json; then
