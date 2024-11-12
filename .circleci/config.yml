@@ -234,6 +234,41 @@ jobs:
           paths:
             - .env_files/
 
+  security-scan-grype:
+    executor: simple-executor
+    steps:
+      - *attach_workspace
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install Grype
+          command: |
+            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - run:
+          name: Scan Docker image with Grype
+          command: |
+            # Get the repository and commit hash
+            REPOSITORY="ghcr.io/startupnationlabs/php-sec-ci"
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+
+            # Login to GHCR
+            echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+
+            # Pull the image
+            docker pull $REPOSITORY:$COMMIT_HASH
+
+            # Run Grype scan and save results
+            grype $REPOSITORY:$COMMIT_HASH --format json > grype-results.json
+
+            # Check for critical vulnerabilities
+            if grep -q '"severity":"Critical"' grype-results.json; then
+              echo "Critical vulnerabilities found!"
+              exit 1
+            fi
+      - store_artifacts:
+          path: grype-results.json
+          destination: grype-scan-results
+
   deploy-ssh-staging:
     executor: simple-executor
     steps:
@@ -331,6 +366,9 @@ workflows:
       - metrics-phpmetrics:
           requires:
             - build-setup
+      - security-scan-grype:
+          requires:
+            - build-docker-image
       - hold:
           type: approval
           requires:
@@ -339,6 +377,8 @@ workflows:
             - test-phpunit
             - metrics-phpmetrics
             - metrics-sonarqube
+            - security-scan-grype
+            - setup-infisical
           filters:
             branches:
               only:
@@ -351,8 +391,6 @@ workflows:
       - deploy-ssh-production:
           requires:
             - hold
-            - build-docker-image
-            - setup-infisical
           filters:
             branches:
               only:
@@ -361,8 +399,6 @@ workflows:
       - deploy-ssh-staging:
           requires:
             - hold
-            - build-docker-image
-            - setup-infisical
           filters:
             branches:
               only:
