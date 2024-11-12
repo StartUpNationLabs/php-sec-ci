@@ -237,6 +237,7 @@ jobs:
   security-scan-grype:
     executor: simple-executor
     steps:
+      - checkout
       - *attach_workspace
       - setup_remote_docker:
           docker_layer_caching: true
