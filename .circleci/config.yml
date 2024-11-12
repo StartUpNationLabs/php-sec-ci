@@ -234,22 +234,55 @@ jobs:
           paths:
             - .env_files/
 
-  debug-infisical:
+  security-scan-grype:
     executor: simple-executor
     steps:
+      - checkout
       - *attach_workspace
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Debug Infisical
+          name: Install Grype
           command: |
-            echo "Staging Environment:"
-            cat .env_files/staging.env
-            echo "\nProduction Environment:"
-            cat .env_files/production.env
+            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - run:
+          name: Scan Docker image with Grype
+          command: |
+            # Get the repository and commit hash
+            REPOSITORY="ghcr.io/startupnationlabs/php-sec-ci"
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+
+            # debug
+            echo "REPOSITORY: $REPOSITORY"
+            echo "COMMIT_HASH: $COMMIT_HASH"
+
+            # Login to GHCR
+            echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+
+            # Pull the image
+            docker pull $REPOSITORY:$COMMIT_HASH
+
+            # Run Grype scan and save results
+            grype $REPOSITORY:$COMMIT_HASH -o json > grype-results.json
+
+            # Check for critical vulnerabilities
+            if grep -q '"severity":"Critical"' grype-results.json; then
+              echo "Critical vulnerabilities found!"
+              exit 1
+            fi
+      - store_artifacts:
+          path: grype-results.json
+          destination: grype-scan-results
 
   deploy-ssh-staging:
     executor: simple-executor
     steps:
       - *attach_workspace
+      - run:
+          name: Debug env
+          command: |
+            echo "Staging Environment:"
+            cat .env_files/staging.env
       - deploy:
           name: Deploy to Staging Environment
           command: |
@@ -265,17 +298,16 @@ jobs:
               echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
               # Pull the new image
-              docker pull $REPOSITORY:$COMMIT_HASH
+              sudo docker pull $REPOSITORY:$COMMIT_HASH
 
               # Stop and remove the existing container
-              docker stop php-sec-ci || true
-              docker rm php-sec-ci || true
+              sudo docker stop php-sec-ci || true
+              sudo docker rm php-sec-ci || true
 
               # Run the new container
-              docker run -d \
+              sudo docker run -d \
                 --name php-sec-ci \
                 --restart unless-stopped \
-                --network web \
                 --env-file $STAGING_DEPLOY_DIRECTORY/.env \
                 $REPOSITORY:$COMMIT_HASH
             EOF
@@ -299,17 +331,16 @@ jobs:
               echo "$GHCR_PAT" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
               # Pull the new image
-              docker pull $REPOSITORY:$COMMIT_HASH
+              sudo docker pull $REPOSITORY:$COMMIT_HASH
 
               # Stop and remove the existing container
-              docker stop php-sec-ci || true
-              docker rm php-sec-ci || true
+              sudo docker stop php-sec-ci || true
+              sudo docker rm php-sec-ci || true
 
               # Run the new container
-              docker run -d \
+              sudo docker run -d \
                 --name php-sec-ci \
                 --restart unless-stopped \
-                --network web \
                 --env-file $PRODUCTION_DEPLOY_DIRECTORY/.env \
                 $REPOSITORY:$COMMIT_HASH
             EOF
@@ -318,6 +349,13 @@ workflows:
   main_workflow:
     jobs:
       - build-setup
+      - build-docker-image:
+          filters:
+            branches:
+              only:
+                - main
+                - master
+                - /^release\/.*/
       - lint-phpcs:
           requires:
             - build-setup
@@ -333,6 +371,9 @@ workflows:
       - metrics-phpmetrics:
           requires:
             - build-setup
+      - security-scan-grype:
+          requires:
+            - build-docker-image
       - hold:
           type: approval
           requires:
@@ -341,13 +382,8 @@ workflows:
             - test-phpunit
             - metrics-phpmetrics
             - metrics-sonarqube
-          filters:
-            branches:
-              only:
-                - main
-                - master
-                - /^release\/.*/
-      - build-docker-image:
+            - security-scan-grype
+            - setup-infisical
           filters:
             branches:
               only:
@@ -357,13 +393,9 @@ workflows:
       - setup-infisical:
           requires:
             - build-setup
-      - debug-infisical:
-          requires:
-            - setup-infisical
       - deploy-ssh-production:
           requires:
             - hold
-            - build-docker-image
           filters:
             branches:
               only:
@@ -372,7 +404,6 @@ workflows:
       - deploy-ssh-staging:
           requires:
             - hold
-            - build-docker-image
           filters:
             branches:
               only:
