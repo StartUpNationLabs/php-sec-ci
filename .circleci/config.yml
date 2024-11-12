@@ -234,18 +234,6 @@ jobs:
           paths:
             - .env_files/
 
-  debug-infisical:
-    executor: simple-executor
-    steps:
-      - *attach_workspace
-      - run:
-          name: Debug Infisical
-          command: |
-            echo "Staging Environment:"
-            cat .env_files/staging.env
-            echo "\nProduction Environment:"
-            cat .env_files/production.env
-
   deploy-ssh-staging:
     executor: simple-executor
     steps:
@@ -362,13 +350,11 @@ workflows:
       - setup-infisical:
           requires:
             - build-setup
-      - debug-infisical:
-          requires:
-            - setup-infisical
       - deploy-ssh-production:
           requires:
             - hold
             - build-docker-image
+            - setup-infisical
           filters:
             branches:
               only:
@@ -378,6 +364,7 @@ workflows:
           requires:
             - hold
             - build-docker-image
+            - setup-infisical
           filters:
             branches:
               only:
