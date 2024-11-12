@@ -250,7 +250,7 @@ jobs:
     executor: simple-executor
     steps:
       - *attach_workspace
-      - debug:
+      - run:
           name: Debug env
           command: |
             echo "Staging Environment:"
