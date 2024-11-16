@@ -222,6 +222,9 @@ jobs:
               --build-arg SQLITE_VERSION=3430200 \
               --build-arg SQLITE_YEAR=2023 \
               --build-arg PROJECT_USERNAME=php-sec-ci \
+              --label "org.opencontainers.image.created=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+              --label "org.opencontainers.image.licenses=MIT" \
+              --label "org.opencontainers.image.source=https://github.com/StartUpNationLabs/php-sec-ci"
               .
 
             # Push the Docker image with all tags

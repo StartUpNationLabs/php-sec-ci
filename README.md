@@ -10,39 +10,8 @@ This project demonstrates a complete CI/CD pipeline for a PHP application with r
 
 ## 🛠️ Technical Stack
 
-- PHP 8.2
-- Apache Web Server
-- SQLite Database
+- PHP 8.2 & Composer
 - Docker
-- CircleCI
-- SonarQube
-- PHPUnit
-- PHP_CodeSniffer
-- PHPMetrics
-
-## 🏗️ Project Structure
-
-```
-.
-├── docker/
-│   └── Dockerfile
-├── public/
-│   ├── index.php
-│   └── font/
-├── src/
-│   └── ImageCreator.php
-├── .circleci/
-│   └── config.yml
-├── composer.json
-└── .env.example
-```
-
-## 📋 Prerequisites
-
-- PHP 8.2+
-- Composer
-- Docker (optional)
-- Git
 
 ## 🚀 Getting Started
 
