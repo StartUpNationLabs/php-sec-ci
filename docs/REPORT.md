@@ -37,44 +37,6 @@ flowchart LR
   J -- secrets --> L
 ```
 
-## Deployment Flow
-
-```mermaid
-flowchart LR
-    subgraph Local
-        U[👤 User]
-    end
-
-    U -- push --> G
-
-    subgraph Github
-        G[💻 GitHub]
-    end
-
-    G -- triggers --> P[🔁 Circle CI Action]
-
-    subgraph CircleCI
-        P --> M[📊 Send metrics to SonarQube]
-        P --> I[📦 Build and push Docker image to GHCR]
-        P --> OVH[⚙️ Deploy to **O**zeliurs **V**irtual **H**osting - Staging]
-        P --> AWS[⚙️ Deploy to AWS - Production]
-    end
-
-    subgraph External_Services
-        M -- pushes --> SQ[📊 SonarQube]
-        I -- pushes --> GHCR[🗄️ GitHub Container Registry]
-    end
-
-    subgraph Deployment
-        C1[💻 Execute pull command on OVH host]
-        C2[💻 Execute pull command on AWS host]
-        OVH <--> C1
-        AWS <--> C2
-        C1 <--> GHCR
-        C2 <--> GHCR
-    end
-```
-
 ## Pipeline Jobs Description
 
 1. **build-setup** 🛠️
@@ -191,7 +153,7 @@ We decided to switch to `php:8.2-alpine` which is a lighter image and contains n
 No vulnerabilities found
 ```
 
-### 🚀 Conclusion
+### 🐳 Docker Image Pruning - Conclusion
 
 By trimming the Docker image and switching to a lighter base image, we were able to reduce the number of packages and vulnerabilities.
 
@@ -225,4 +187,59 @@ And the Vulnerability scan now reports no vulnerabilities.
    ├── by severity: 0 critical, 0 high, 0 medium, 0 low, 0 negligible
    └── by status:   0 fixed, 0 not-fixed, 0 ignored
 No vulnerabilities found
+```
+
+## 🚀 Deployment
+
+The deployment process is automated on two environments: `staging` and `production`.
+
+We ensure a good iso-environment between the two environments by using an ansible setup script and by using the same distribution : `Ubuntu 22.04`.
+
+The two environments are the deployment of the following branches:
+- `release/*` branches are deployed on the `staging` environment
+- `main` branch is deployed on the `production` environment
+
+### CicleCI Deployment Configuration
+
+We use CircleCI to deploy the application, it keeps two private keys in its secrets to connect to the servers.
+CircleCI is also responsible for generating the `.env` file from the infisical server.
+We require manual authorization to deploy to both environments, ensuring that the deployment is done by a human.
+
+### Deployment Process
+
+The deployment process is as follows:
+```mermaid
+flowchart LR
+    subgraph Local
+        U[👤 User]
+    end
+
+    U -- push --> G
+
+    subgraph Github
+        G[💻 GitHub]
+    end
+
+    G -- triggers --> P[🔁 Circle CI Action]
+
+    subgraph CircleCI
+        P --> M[📊 Send metrics to SonarQube]
+        P --> I[📦 Build and push Docker image to GHCR]
+        P --> OVH[⚙️ Deploy to **O**zeliurs **V**irtual **H**osting - Staging]
+        P --> AWS[⚙️ Deploy to AWS - Production]
+    end
+
+    subgraph External_Services
+        M -- pushes --> SQ[📊 SonarQube]
+        I -- pushes --> GHCR[🗄️ GitHub Container Registry]
+    end
+
+    subgraph Deployment
+        C1[💻 Execute pull command on OVH host]
+        C2[💻 Execute pull command on AWS host]
+        OVH <--> C1
+        AWS <--> C2
+        C1 <--> GHCR
+        C2 <--> GHCR
+    end
 ```
