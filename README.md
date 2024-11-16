@@ -39,7 +39,7 @@ docker run -p 8080:80 php-sec-ci
 
 The project includes a comprehensive CircleCI pipeline that builds, tests and deploys the application.
 
-To learn more about the pipeline, refer to the [`docs/PIPELINE.md`](docs/PIPELINE.md) file.
+To learn more about the pipeline, refer to the [`docs/PIPELINE.md`](docs/REPORT.md) file.
 
 ## 🚀 Deployment
 
