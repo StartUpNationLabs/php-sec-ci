@@ -193,11 +193,19 @@ No vulnerabilities found
 
 The deployment process is automated on two environments: `staging` and `production`.
 
-We ensure a good iso-environment between the two environments by using an ansible setup script and by using the same distribution : `Ubuntu 22.04`.
-
 The two environments are the deployment of the following branches:
 - `release/*` branches are deployed on the `staging` environment
 - `main` branch is deployed on the `production` environment
+
+### Servers Setup
+
+We set up two very similar `Ubuntu 22.04` servers, one on AWS and another one on Ozeliurs Virtual Hosting.
+We initially set them up with a asymmetric key pair and the default `ubuntu`user with `sudo` privileges.
+
+We ensure a good iso-environment between the two environments by using an ansible setup script.
+
+The script is located in the `ansible` directory and does the following:
+- TODO: @BedinoTom explain what the script does and add it to `/ansible`.
 
 ### CicleCI Deployment Configuration
 
