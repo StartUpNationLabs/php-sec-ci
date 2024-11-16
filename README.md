@@ -37,25 +37,19 @@ docker run -p 8080:80 php-sec-ci
 
 ## 🔄 CI/CD Pipeline
 
-The project includes a comprehensive CircleCI pipeline that:
+The project includes a comprehensive CircleCI pipeline that builds, tests and deploys the application.
 
-- Runs code quality checks
-- Performs security analysis
-- Executes unit tests
-- Generates metrics reports
-- Builds and pushes Docker images
-- Deploys to staging and production environments
+To learn more about the pipeline, refer to the [`docs/PIPELINE.md`](docs/PIPELINE.md) file.
 
 ## 📊 Quality Metrics
 
-- SonarQube analysis
+Code is scanned for quality and security issues using SonarQube. Coverage is also measured and reported.
+
+SonaQube is available at [https://sonarqube.devops-tools.apoorva64.com](https://sonarqube.devops-tools.apoorva64.com/dashboard?id=php-sec-ci).
 
 ## 🔒 Security
 
-- Automated dependency security checks
-- Code quality analysis
-- Secure deployment process
-- Environment variable management
+We use grype to scan the container image for vulnerabilities. The results are published in the CircleCI pipeline.
 
 ## 📄 License
 
