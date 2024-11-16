@@ -235,8 +235,8 @@ flowchart LR
     end
 
     subgraph Deployment
-        C1[💻 Execute pull command on OVH host]
-        C2[💻 Execute pull command on AWS host]
+        C1[💻 Execute docker pull and run command on OVH host]
+        C2[💻 Execute docker pull and run command on AWS host]
         OVH <--> C1
         AWS <--> C2
         C1 <--> GHCR
