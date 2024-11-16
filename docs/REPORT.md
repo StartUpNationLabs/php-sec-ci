@@ -211,32 +211,32 @@ The deployment process is as follows:
 ```mermaid
 flowchart LR
     subgraph Local
-        U[👤 User]
+        U[👤  User]
     end
 
     U -- push --> G
 
     subgraph Github
-        G[💻 GitHub]
+        G[💻  GitHub]
     end
 
-    G -- triggers --> P[🔁 Circle CI Action]
+    G -- triggers --> P[🔁  Circle CI Action]
 
     subgraph CircleCI
-        P --> M[📊 Send metrics to SonarQube]
-        P --> I[📦 Build and push Docker image to GHCR]
-        P --> OVH[⚙️ Deploy to **O**zeliurs **V**irtual **H**osting - Staging]
-        P --> AWS[⚙️ Deploy to AWS - Production]
+        P --> M[📊  Send metrics to SonarQube]
+        P --> I[📦  Build and push Docker image to GHCR]
+        P --> OVH[⚙️  Deploy to **O**zeliurs **V**irtual **H**osting - Staging]
+        P --> AWS[⚙️  Deploy to AWS - Production]
     end
 
     subgraph External_Services
-        M -- pushes --> SQ[📊 SonarQube]
-        I -- pushes --> GHCR[🗄️ GitHub Container Registry]
+        M -- pushes --> SQ[📊  SonarQube]
+        I -- pushes --> GHCR[🗄️  GitHub Container Registry]
     end
 
     subgraph Deployment
-        C1[💻 Execute docker pull and run command on OVH host]
-        C2[💻 Execute docker pull and run command on AWS host]
+        C1[💻  Execute docker pull and run command on OVH host]
+        C2[💻  Execute docker pull and run command on AWS host]
         OVH <--> C1
         AWS <--> C2
         C1 <--> GHCR
