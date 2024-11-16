@@ -21,7 +21,7 @@
     - Secret fetching from infisical
     - SSH login to destination machine (with pub/priv keys)
     - Creation of .env in the destination machine
-    - Run docker-compose.yaml in destination machine
+    - Run docker container in the target machine.
 
 ## Machine setup :
 
