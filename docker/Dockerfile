@@ -1,17 +1,15 @@
-FROM php:8.2-apache
+FROM php:8.2-alpine
 LABEL maintainer="Ozeliurs <ozeliurs at gmail dot com>"
 
-ARG DEBIAN_FRONTEND=noninteractive
-
 # Install system dependencies and Composer
-RUN apt-get update && apt-get --no-install-recommends install -y \
-    libpng-dev libjpeg62-turbo-dev libfreetype6-dev libzip-dev unzip \
+RUN apk add --no-cache \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && a2enmod rewrite \
-    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY ./composer.json ./composer.lock /var/www/html/
 
@@ -26,5 +24,8 @@ RUN rm -Rf /var/www/html/docker \
 WORKDIR /var/www/html
 
 USER www-data
+
+# Use PHP's built-in development server
+CMD ["php", "-S", "0.0.0.0:80", "-t", "public"]
 
 EXPOSE 80
