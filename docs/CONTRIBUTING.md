@@ -9,38 +9,16 @@
    ```
 
 2. **Branch Names**
-   - `feature/*` - New features
-   - `bugfix/*` - Bug fixes
-   - `release/*` - Staging releases
-   - `hotfix/*` - Production fixes
+   - `main` - Production branch, do not push your shiet to it.
+   - `dev` - Development branch, merge to `main` when ready.
+   - `litteraly-anything-else` - Feature branch, do your shiet here if you need more than one commit and then merge to `dev`.
 
-3. **Code Standards**
-   ```bash
-   ./vendor/bin/phpcs    # Check code style
-   ./vendor/bin/phpunit  # Run tests
-   ```
+3. **Commit Standards**
+   We try to follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
 
-## Pull Request Process 📝
-
-1. **Create Branch**
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-
-2. **Checklist**
-   - [ ] Tests added
-   - [ ] PSR-12 compliance
-   - [ ] Documentation updated
-   - [ ] CI checks pass
-
-3. **Commit Format**
-   ```
-   type: description
-   ```
-   Types: `feat`, `fix`, `docs`, `test`
+   Please, pretty **PLEASE** follow the format.
 
 ## Need Help? ❓
-- Create an Issue
-- Email: maintainers@example.com
+- **Ask us** on our [Issues](https://github.com/StartUpNationLabs/php-sec-ci/issues) (Guaranteed answer before 2050).
 
 Thank you for contributing! 🙏
