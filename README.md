@@ -15,27 +15,15 @@ This project demonstrates a complete CI/CD pipeline for a PHP application with r
 
 ## 🚀 Getting Started
 
-1. Clone the repository:
+Pull and Run the docker image
+
 ```bash
-git clone [repository-url]
+docker run -p 8080:80 ghcr.io/startupnationlabs/php-sec-ci:main
 ```
 
-2. Install dependencies:
-```bash
-composer install
-```
+Then navigate to `http://localhost:8080` in your browser.
 
-3. Copy the environment file and configure it:
-```bash
-cp .env.example .env
-```
-
-4. Run the application locally:
-```bash
-php -S localhost:8000 -t public
-```
-
-## 🐳 Docker Usage
+## 🐳 Build Locally your version
 
 Build the image:
 ```bash
@@ -61,9 +49,6 @@ The project includes a comprehensive CircleCI pipeline that:
 ## 📊 Quality Metrics
 
 - SonarQube analysis
-- PHPMetrics reports
-- Code coverage reports
-- PHP_CodeSniffer checks
 
 ## 🔒 Security
 
