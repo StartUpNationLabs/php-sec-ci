@@ -41,6 +41,14 @@ The project includes a comprehensive CircleCI pipeline that builds, tests and de
 
 To learn more about the pipeline, refer to the [`docs/PIPELINE.md`](docs/PIPELINE.md) file.
 
+## 🚀 Deployment
+
+The project is deployed on 2 different environment depending on the branch that is updated :
+- A self-hosted machine if the target branch is dev
+- An AWS-EC2 instance if the target branch is main
+
+For more information about the deployment and the setup of these machine, please refer to the [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) file. 
+
 ## 📊 Quality Metrics
 
 Code is scanned for quality and security issues using SonarQube. Coverage is also measured and reported.
