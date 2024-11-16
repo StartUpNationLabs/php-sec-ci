@@ -103,6 +103,6 @@ flowchart LR
 
 ## Environment and Branches
 
-- Production deployments: `main` and `master` branches
-- Staging deployments: `release/*` branches
+- Production deployments: `main` branch
+- Staging deployments: `dev` branch
 - Automated testing: All branches
