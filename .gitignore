@@ -8,3 +8,4 @@ docker-compose.override.yml
 /.vscode
 composer.phar
 phpmetrics-report/
+.DS_Store
