@@ -8,15 +8,6 @@
 
 This project demonstrates a complete CI/CD pipeline for a PHP application with robust security measures and best practices.
 
-## 🚀 Features
-
-- Dynamic image generation with custom text and colors
-- Environment variable configuration
-- Comprehensive CI/CD pipeline with CircleCI
-- Docker containerization
-- Automated security checks and code quality analysis
-- Multiple deployment environments (staging and production)
-
 ## 🛠️ Technical Stack
 
 - PHP 8.2

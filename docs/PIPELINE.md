@@ -56,7 +56,7 @@ flowchart LR
     subgraph CircleCI
         P --> M[📊 Send metrics to SonarQube]
         P --> I[📦 Build and push Docker image to GHCR]
-        P --> OVH[⚙️ Deploy to OVH - Staging]
+        P --> OVH[⚙️ Deploy to **O**zeliurs **V**irtual **H**osting - Staging]
         P --> AWS[⚙️ Deploy to AWS - Production]
     end
 
