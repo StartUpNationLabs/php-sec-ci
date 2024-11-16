@@ -18,7 +18,7 @@
 
    Please, pretty **PLEASE** follow the format.
 
-## Need Help? ❓
+## Need Help ? ❓
 - **Ask us** on our [Issues](https://github.com/StartUpNationLabs/php-sec-ci/issues) (Guaranteed answer before 2050).
 
 Thank you for contributing! 🙏
