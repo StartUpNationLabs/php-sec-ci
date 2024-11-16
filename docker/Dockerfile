@@ -1,6 +1,8 @@
 FROM php:8.2-alpine
 LABEL maintainer="Ozeliurs <ozeliurs at gmail dot com>"
 
+WORKDIR /var/www/html/
+
 # Install system dependencies and Composer
 RUN apk add --no-cache \
     freetype-dev \
