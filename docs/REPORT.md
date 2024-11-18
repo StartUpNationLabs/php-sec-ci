@@ -199,13 +199,43 @@ The two environments are the deployment of the following branches:
 
 ### Servers Setup
 
-We set up two very similar `Ubuntu 22.04` servers, one on AWS and another one on Ozeliurs Virtual Hosting.
-We initially set them up with a asymmetric key pair and the default `ubuntu`user with `sudo` privileges.
+For the deployment part, we first try to have 2 machines:
+- **a pre-production**, in order to test the software in real conditions without having to endanger the production
+- **a production**, where our program will run and be accessible to our customers
 
-We ensure a good iso-environment between the two environments by using an ansible setup script.
+In this bidding we needed iso environments, that is to say, which have the same software, the same security standards, etc.
 
-The script is located in the `ansible` directory and does the following:
-- TODO: @BedinoTom explain what the script does and add it to `/ansible`.
+For this we have first set up an automatic creation of the **EC2** with Terraform. The preprod machine is a personal machine, so it could not be put under the Terraform hit.
+
+In order to guarantee the ISO of both machines, we have implemented Ansible scripts to have reproducible configurations.
+
+You can find the documentation on these two Github directories:
+- https://github.com/BedinoTom/si5-dev-secops-terraform.git
+- https://github.com/BedinoTom/si5-dev-secops-ansible.git
+
+#### Security
+
+For security, we tried to configure our EC2 with the recommended security settings, and then we did some audits to make sure that the settings covered security properly.
+
+For the implementation of security we have acted in several places. First, we strengthened the configuration of SSH, in terms of encryption algorithms or key signing. We were able to find the recommendations here: https://www.ssh-audit.com/hardening_guides.html#ubuntu_24_04_lts
+
+Then, in order to prevent brute force attacks on the SSH, we have implemented a fail2ban that is responsible for limiting this type of attack. We also doubled this security, by several entries in iptable to limit the number of SSH connections over time (every 10 seconds). We found this recommendation on: https://www.ssh-audit.com/hardening_guides.html#ubuntu_24_04_lts
+
+For the verification we used 2 tools: ssh-audit and OVAL
+
+The first will allow us to analyze our SSH configuration and tell us the problems. Here is a piece of the result:
+
+![SSH-Audit](./images/ssh_audit.png)
+
+As we can see, there are red alerts that have come back to us. However, as you can see in the top of the screenshot, these algorithms are classified red because there is a suspicion of corruption by the NSA. We have not removed them because our keys are based on these algorithms especially for my pre-production machine, and there are complications to change the key type. However, on most of the other parameters, all is good according to the audit.
+
+The second tool is **OVAL (Open Vulnerability and Assessment Language)**. The latter plays a key role in auditing and managing vulnerabilities within information systems. In the context of Ubuntu, OVAL relies on vulnerability and patch definitions to analyze the presence of common vulnerabilities (CVEs) on a local system. By combining these scans with the Ubuntu Security Advisories (USN), it allows to check if the available patches are relevant and necessary to maintain system security. This standardized tool therefore offers a methodical approach to strengthen cybersecurity while ensuring greater compliance with best practices.
+
+In our case, the result from the report is as follows:
+
+![OVAL](./images/rapport_OVAL.png)
+
+As we can see, we have no **CVE** on the **EC2**
 
 ### CicleCI Deployment Configuration
 
@@ -251,3 +281,26 @@ flowchart LR
         C2 <--> GHCR
     end
 ```
+
+## 🔒 Security
+
+For docker images and virtual machines you have the explanations in the different sections.
+Here we will talk about the GitHub account and directory.
+
+The repository is in an organization that we use for some projects, we have set up restricted access, the repository remains public by choice on our part. 
+
+However, we do not make security by the darkness because no secret is present on git.
+
+For the configuration of GitHub accounts, Maxime tried to make only signed commits, so we have the certainty that they are sent by his machine.
+
+We could all adopt this practice to identify a malicious commit more easily, and prevent accepting commits that are not.
+
+In addition, we have found a tool to provide security at the directory level.
+
+The tool is called a **scorecard** (https://github.com/ossf/scorecard.git), which calculates a security score on the directory based on a certain number of criteria. The result is as follows:
+
+![ScoreBoard](./images/scoreboard.png)
+
+At first glance, this score is very low. It can be explained by the fact that some rules are difficult to implement, such as branch protection (which only works in an organization). Others are related to the fact that we do not have a contributor or automatic tools for dependency management.
+
+However, this tool gave us good advice such as the implementation of a SECURITY.md file to define the security rules for our project.
