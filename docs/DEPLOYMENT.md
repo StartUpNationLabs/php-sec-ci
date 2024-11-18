@@ -26,3 +26,9 @@
 ## Machine setup :
 
 As said before, we use an ansible script that install every necessary utilities for our project.
+The creation of the EC2 instance on AWS also use a Terraform script.
+
+You can find both of these script here : 
+- https://github.com/BedinoTom/si5-dev-secops-terraform.git
+- https://github.com/BedinoTom/si5-dev-secops-ansible.git
+

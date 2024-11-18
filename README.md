@@ -58,6 +58,7 @@ SonaQube is available at [https://sonarqube.devops-tools.apoorva64.com](https://
 ## 🔒 Security
 
 We use grype to scan the container image for vulnerabilities. The results are published in the CircleCI pipeline.
+You can find more details about our security analysis in the [`docs/REPORT.md`](./docs/REPORT.md) file, there is a part dedicated to it.
 
 ## 📄 License
 
